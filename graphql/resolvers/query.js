@@ -1,4 +1,5 @@
 import { getContactBasicFilter } from '../../utils/index.js'
+import { setTimeout } from 'timers/promises'
 
 const contactProperties = ['firstname', 'lastname', 'email', 'phone', 'address', 'city', 'state']
 
@@ -17,6 +18,7 @@ export const Query = {
     const contacts = []
     try {
       for await (const email of emails) {
+        await setTimeout(300)
         await getContactBasicFilter([{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], contactProperties)
           .then(({ data }) => {
             const results = data.results.map(contact => contact.properties)
