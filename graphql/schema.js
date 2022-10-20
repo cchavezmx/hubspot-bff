@@ -57,5 +57,4 @@ export const typeDefs = `#graphql
     getContactProperties(filterInput: propertiesInput!): [contact]
     getContactPropertiesFromArray(emails: [String]): [contact]
   }
-`;
-
+`

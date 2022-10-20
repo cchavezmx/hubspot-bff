@@ -1,25 +1,33 @@
-import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
+import { ApolloServer } from 'apollo-server-express'
+import express from 'express'
 import * as dotenv from 'dotenv'
+
+import { typeDefs } from './graphql/schema.js'
+import { Query } from './graphql/resolvers/query.js'
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core'
+
+import http from 'http'
 dotenv.config()
+const PORT = process.env.PORT || 4000
 
-import { Query } from './graphql/resolvers/query.js';
-import { typeDefs } from './graphql/schema.js';
+async function startApolloServer () {
+  const app = express()
+  const httpServer = http.createServer(app)
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers: {
+      Query
+    },
+    // context: async ({ req }) => ({ token: req.headers.token }),
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    introspection: true,
+    playground: true
+  })
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers: {
-    Query,
-  },
-  playground: true,
-  introspection: true,
-});
+  await server.start()
+  server.applyMiddleware({ app, path: '/api' })
+  await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve))
+  console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+}
 
-// const { url } = await startStandaloneServer(server, {
-//   listen: { port: process.env.PORT || 4000 },
-// });
-
-// console.log(`🚀  Server ready at: ${url}`);
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
-});
+startApolloServer()
