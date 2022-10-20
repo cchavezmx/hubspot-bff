@@ -16,13 +16,14 @@ export const Query = {
   getContactPropertiesFromArray: async (__parent, { emails }, context, info) => {
     const contacts = []
     try {
-      for (const email of emails) {
+      for await (const email of emails) {
         await getContactBasicFilter([{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], contactProperties)
           .then(({ data }) => {
             const results = data.results.map(contact => contact.properties)
             if (results.length === 0) {
               contacts.push({ error: `No existe el contacto con el email ${email}` })
             }
+            console.log('yapa')
             contacts.push(results[0])
           })
       }
