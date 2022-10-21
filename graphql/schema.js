@@ -14,6 +14,16 @@ export const typeDefs = `#graphql
     books: [Book]
   }
 
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE    
+
   enum operators {
     EQ
     NE
@@ -37,7 +47,7 @@ export const typeDefs = `#graphql
     filterGroups: [filterGroupsInput]
   }
 
-  type emails {
+  type emails  @cacheControl(maxAge: 240) {
     value: String    
   }
 
