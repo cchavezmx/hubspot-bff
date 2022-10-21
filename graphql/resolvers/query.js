@@ -15,7 +15,6 @@ export const Query = {
     }
   },
   getContactPropertiesFromArray: async (__parent, { emails }, context, info) => {
-    console.log('🚀 ~ file: query.js ~ line 18 ~ getContactPropertiesFromArray: ~ info', info)
     const contacts = []
     try {
       for await (const email of emails) {
