@@ -24,3 +24,21 @@ export const getContactBasicFilter = async (filterGroups, properties) => {
 
   return contact
 }
+
+export async function updateContact (dealID, hubspotProp) {
+  const { property, value } = hubspotProp
+
+  const raw = JSON.stringify({
+    properties: {
+      [property]: value
+    }
+  })
+
+  const deal = await hubApi.patch(`/crm/v3/objects/contacts/${dealID}`, raw, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+
+  })
+  return deal
+}

@@ -46,10 +46,16 @@ export const typeDefs = `#graphql
   input propertiesInput {
     filterGroups: [filterGroupsInput]
   }
-
+  
+  input hubspotProp {
+    property: String
+    value: String
+  }
+  
   type emails  @cacheControl(maxAge: 240) {
     value: String    
   }
+
 
   type contact {
     id: String
@@ -63,8 +69,23 @@ export const typeDefs = `#graphql
     error: String
   }
 
+  type contactProperties {
+    next_info_session_register: String
+    envio_link_ensayo: String
+  }
+
+  type updateResponse {
+    email: String
+    updateResponse: contactProperties
+  }
+
+  type Mutation {
+    changePropertiesFromContacts(emails: [String], hubspotProp: hubspotProp): [updateResponse]
+  }
+
   type Query {    
     getContactProperties(filterInput: propertiesInput!): [contact]
-    getContactPropertiesFromArray(emails: [String]): [contact]
+    getContactPropertiesFromArray(emails: [String]): [contact]    
   }
+
 `

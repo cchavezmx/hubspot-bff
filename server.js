@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv'
 import Keyv from 'keyv'
 import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 import { typeDefs } from './graphql/schema.js'
-import { Query } from './graphql/resolvers/query.js'
+import { resolvers } from './graphql/resolvers/index.js'
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core'
 
 import http from 'http'
@@ -18,7 +18,8 @@ async function startApolloServer () {
   const server = new ApolloServer({
     typeDefs,
     resolvers: {
-      Query
+      Query: resolvers.Query,
+      Mutation: resolvers.Mutation
     },
     // context: async ({ req }) => ({ token: req.headers.token }),
     cache: new KeyvAdapter(new Keyv(process.env.REDIS_URL)),

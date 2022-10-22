@@ -1,7 +1,6 @@
 import { getContactBasicFilter } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
-
-const contactProperties = ['firstname', 'lastname', 'email', 'phone', 'address', 'city', 'state']
+import { contactProperties } from '../../utils/CONST.js'
 
 export const Query = {
   getContactProperties: async (__parent, { filterInput }, context, info) => {
