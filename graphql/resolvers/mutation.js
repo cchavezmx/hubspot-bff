@@ -13,10 +13,17 @@ export const Mutation = {
     const { property } = hubspotProp
     const contacts = []
     try {
-      for await (const email of emails) {
-        try {
-          await setTimeout(500) // Hubspot API limit is 10 requests per second
-          await getContactBasicFilter(
+      const tenRescursiveFunction = async (emails = []) => {
+        await setTimeout(500)
+        if (emails.length === 0) {
+          return true
+        }
+
+        const counter = 0
+        const currentArray = emails.slice(counter, counter + 10)
+
+        for await (const email of currentArray) {
+          const response = await getContactBasicFilter(
             [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
             [...contactProperties, property])
             .then(async ({ data }) => {
@@ -27,13 +34,16 @@ export const Mutation = {
               }
               const [contact] = results
               const { data: updateResponse } = await updateContact(contact.id, hubspotProp)
-              info.cacheControl.setCacheHint({ maxAge: 240 })
-              contacts.push({ email, updateResponse: updateResponse.properties })
+              return { email, updateResponse: updateResponse.properties }
             })
-        } catch (error) {
-          console.log(error)
+          contacts.push(response)
         }
+
+        const nextArray = emails.slice(counter + 10, Infinity)
+        tenRescursiveFunction(nextArray)
       }
+
+      await tenRescursiveFunction(emails)
       return contacts
     } catch (error) {
       console.log(error)

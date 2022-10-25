@@ -21,7 +21,12 @@ async function startApolloServer () {
       Query: resolvers.Query,
       Mutation: resolvers.Mutation
     },
-    // context: async ({ req }) => ({ token: req.headers.token }),
+    // context: async ({ req }) => {
+    //   console.log('context', req.headers.authorization)
+    //   return {
+    //     token: req.headers.authorization
+    //   }
+    // },
     cache: new KeyvAdapter(new Keyv(process.env.REDIS_URL)),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     introspection: true,
