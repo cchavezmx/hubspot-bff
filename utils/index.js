@@ -55,8 +55,6 @@ export async function getDealBasicFilter (filterGroups, properties) {
     }
   })
 
-  console.log('🚀 ~ file: index.js ~ line 58 ~ getDealBasicFilter ~ deal', data)
-
   return data.results
 }
 

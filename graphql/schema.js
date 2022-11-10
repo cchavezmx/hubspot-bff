@@ -63,13 +63,15 @@ export const typeDefs = `#graphql
     lastname: String
     email: String
     phone: String
+    mobilephone: String
     address: String
     city: String
     state: String
     error: String
   }
 
-  type deal {    
+  type deal {
+    error: String
     hs_object_id: String
     link_pago_parcialidades: String
     programa_de_interes: String
@@ -77,7 +79,7 @@ export const typeDefs = `#graphql
 
   type contactAndDeal {
     contactProperties: contact
-    dealProperties: deal
+    dealProperties: [deal]
     error: String
   }
 

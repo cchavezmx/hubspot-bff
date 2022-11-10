@@ -2,6 +2,8 @@ import { getContactBasicFilter, getDealBasicFilter, getContactDeal } from '../..
 import { setTimeout } from 'timers/promises'
 import { contactProperties, dealProperties } from '../../utils/CONST.js'
 
+const filterPayload = (propertyName, value) => [{ filters: [{ propertyName, operator: 'EQ', value }] }]
+
 export const Query = {
   getContactProperties: async (__parent, { filterInput }, context, info) => {
     try {
@@ -48,47 +50,45 @@ export const Query = {
         const currentArray = arrayProp.slice(counter, counter + 10)
 
         for await (const email of currentArray) {
-          const response = await getContactBasicFilter(
-            [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
-            [...contactProperties])
-            .then(async ({ data }) => {
-              const results = data.results.map(contact => contact)
-              if (results.length === 0) {
-                contacts.push({ error: `No existe el contacto con el email ${email}` })
-                return
-              }
-              const [contact] = results
-              // probamos con el primer deal
-              const [associatedDeals] = await getContactDeal(contact.id)
+          try {
+            const { data: dataContact } = await getContactBasicFilter(filterPayload('email', email), contactProperties)
 
-              let dealData = null
-              if (associatedDeals) {
-                dealData = await getDealBasicFilter(
-                  [{ filters: [{ propertyName: 'hs_object_id', operator: 'EQ', value: associatedDeals.id }] }],
-                  dealProperties)
-                  .then((res) => {
-                    const results = res.map(deal => deal.properties)
-                    return results
-                  })
-              } else {
-                // contacts.push({ error: 'No existe Deal asociado' })
-                return { error: 'No existe Deal asociado' }
-              }
+            if (!dataContact.results.length) {
+              contacts.push({
+                contactProperties: { error: 'No existe el contacto' },
+                dealProperties: [{ error: 'No existe el contacto' }]
+              })
+            }
+            const [contact] = dataContact.results
+            const associatedDeals = await getContactDeal(contact.id)
 
-              return {
+            if (associatedDeals.length > 0) {
+              const alldeals = await Promise.all(associatedDeals.map(async deal => {
+                const deals = await getDealBasicFilter(filterPayload('hs_object_id', deal.id), dealProperties)
+                return deals
+              }))
+              contacts.push({
                 contactProperties: contact.properties,
-                dealProperties: dealData ? dealData[0] : null
-              }
-            })
-
-          contacts.push(response)
+                dealProperties: alldeals.flat(Infinity).map(deal => deal.properties)
+              })
+            } else {
+              contacts.push({
+                contactProperties: contact.properties,
+                dealProperties: [{ error: 'No tiene deals asociados' }]
+              })
+            }
+          } catch (error) {
+            console.log('🚀 ~ file: query.js ~ line 77 ~ forawait ~ error', error)
+          }
         }
 
         const nextArray = arrayProp.slice(counter + 10, Infinity)
         return tenRescursiveFunction(nextArray)
       }
 
-      return tenRescursiveFunction(emails)
+      const cosa = await tenRescursiveFunction(emails)
+      console.log('🚀 ~ file: query.js ~ line 85 ~ getDealsPropertiesFromArray ~ cosa', cosa)
+      return cosa
     } catch (error) {
       console.log(error)
       return error
