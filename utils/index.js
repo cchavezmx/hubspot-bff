@@ -42,3 +42,25 @@ export async function updateContact (dealID, hubspotProp) {
   })
   return deal
 }
+
+export async function getDealBasicFilter (filterGroups, properties) {
+  const raw = JSON.stringify({
+    filterGroups,
+    properties
+  })
+
+  const { data } = await hubApi.post('/crm/v3/objects/deals/search', raw, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+
+  console.log('🚀 ~ file: index.js ~ line 58 ~ getDealBasicFilter ~ deal', data)
+
+  return data.results
+}
+
+export async function getContactDeal (contactID) {
+  const { data } = await hubApi.get(`/crm/v3/objects/contacts/${contactID}/associations/DEALS`)
+  return data.results
+}

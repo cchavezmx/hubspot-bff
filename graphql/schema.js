@@ -69,6 +69,18 @@ export const typeDefs = `#graphql
     error: String
   }
 
+  type deal {    
+    hs_object_id: String
+    link_pago_parcialidades: String
+    programa_de_interes: String
+  }
+
+  type contactAndDeal {
+    contactProperties: contact
+    dealProperties: deal
+    error: String
+  }
+
   type contactProperties {
     next_info_session_register: String
     envio_link_ensayo: String
@@ -85,7 +97,9 @@ export const typeDefs = `#graphql
 
   type Query {    
     getContactProperties(filterInput: propertiesInput!): [contact]
-    getContactPropertiesFromArray(emails: [String]): [contact]    
+    getContactPropertiesFromArray(emails: [String]): [contact]
+    getDealsPropertiesFromArray(emails: [String]): [contactAndDeal]
+
   }
 
 `
