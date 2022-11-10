@@ -86,9 +86,7 @@ export const Query = {
         return tenRescursiveFunction(nextArray)
       }
 
-      const cosa = await tenRescursiveFunction(emails)
-      console.log('🚀 ~ file: query.js ~ line 85 ~ getDealsPropertiesFromArray ~ cosa', cosa)
-      return cosa
+      return await tenRescursiveFunction(emails)
     } catch (error) {
       console.log(error)
       return error
