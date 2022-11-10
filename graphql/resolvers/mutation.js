@@ -13,14 +13,14 @@ export const Mutation = {
     const { property } = hubspotProp
     const contacts = []
     try {
-      const tenRescursiveFunction = async (emails = []) => {
+      const tenRescursiveFunction = async (arrayProp = []) => {
         await setTimeout(500)
-        if (emails.length === 0) {
-          return true
+        if (arrayProp.length === 0) {
+          return contacts
         }
 
         const counter = 0
-        const currentArray = emails.slice(counter, counter + 10)
+        const currentArray = arrayProp.slice(counter, counter + 10)
 
         for await (const email of currentArray) {
           const response = await getContactBasicFilter(
@@ -34,17 +34,20 @@ export const Mutation = {
               }
               const [contact] = results
               const { data: updateResponse } = await updateContact(contact.id, hubspotProp)
-              return { email, updateResponse: updateResponse.properties }
+              return {
+                email,
+                updateResponse
+              }
             })
+
           contacts.push(response)
         }
 
-        const nextArray = emails.slice(counter + 10, Infinity)
-        tenRescursiveFunction(nextArray)
+        const nextArray = arrayProp.slice(counter + 10, Infinity)
+        return tenRescursiveFunction(nextArray)
       }
 
-      await tenRescursiveFunction(emails)
-      return contacts
+      return tenRescursiveFunction(emails)
     } catch (error) {
       console.log(error)
       return error
