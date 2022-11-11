@@ -68,7 +68,6 @@ export async function getContactDeal (contactID) {
 export async function sendWhatsappMessage (message) {
   // eslint-disable-next-line camelcase
   const { name, phone, program, payment_link } = message
-  console.log('🚀 ~ file: index.js ~ line 71 ~ sendWhatsappMessage ~ { name, phone, program, payment_link }', { name, phone, program, payment_link })
   const config = {
     method: 'POST',
     url: 'https://bot-whats-d6rxv5j22a-uc.a.run.app/send/payment/link',
