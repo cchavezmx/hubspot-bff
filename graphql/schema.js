@@ -33,6 +33,23 @@ export const typeDefs = `#graphql
     LTE
   }
 
+  enum programs {
+    code
+  }
+
+  enum contactPropertiesEnum {
+    next_info_session_register
+    envio_link_ensayo
+  }
+
+  enum dealPropertiesEnum {
+    dealname
+    amount
+    closedate
+    programa_de_interes
+    link_pago_parcialidades
+  }
+
   input filterInput {
     propertyName: String
     operator: operators
@@ -47,15 +64,19 @@ export const typeDefs = `#graphql
     filterGroups: [filterGroupsInput]
   }
   
-  input hubspotProp {
-    property: String
+  input hubspotContactProp {
+    property: contactPropertiesEnum
+    value: String
+  }
+
+  input hubspoDealtProp {
+    property: dealPropertiesEnum
     value: String
   }
   
   type emails  @cacheControl(maxAge: 240) {
     value: String    
   }
-
 
   type contact {
     id: String
@@ -93,8 +114,24 @@ export const typeDefs = `#graphql
     updateResponse: contactProperties
   }
 
+  type whatsappResponse {
+    email: String
+    whatsappResponse: String
+    hubspotResponse: String
+  }
+
+  input Alumni {
+    email: String
+    name: String
+    phone: String
+    program: programs
+    payment_link: String
+    deal_id: String      
+  }
+    
   type Mutation {
-    changePropertiesFromContacts(emails: [String], hubspotProp: hubspotProp): [updateResponse]
+    changePropertiesFromContacts(emails: [String], hubspotProp: hubspotContactProp): [updateResponse]
+    sendWhatsappMessageDealHubspot(alumniInput: [Alumni], hubspotProp: hubspoDealtProp): [whatsappResponse]
   }
 
   type Query {    

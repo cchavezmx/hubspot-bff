@@ -1,5 +1,5 @@
 import { ApolloError } from 'apollo-server-errors'
-import { getContactBasicFilter, updateContact } from '../../utils/index.js'
+import { getContactBasicFilter, updateContact, sendWhatsappMessage, updateDeal } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
 import { contactProperties } from '../../utils/CONST.js'
 
@@ -48,6 +48,61 @@ export const Mutation = {
       }
 
       return tenRescursiveFunction(emails)
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  },
+  sendWhatsappMessageDealHubspot: async (__parent, { alumniInput, hubspotProp }, context, info) => {
+    const contacts = []
+    try {
+      const tenRescursiveFunction = async (arrayProp = []) => {
+        await setTimeout(500)
+        if (arrayProp.length === 0) {
+          return contacts
+        }
+
+        const counter = 0
+        const currentArray = arrayProp.slice(counter, counter + 10)
+
+        for await (const alumni of currentArray) {
+          try {
+            // enviar whatsapp
+            console.log('enviar whatsapp', alumni)
+            const whatsappData = await sendWhatsappMessage(alumni)
+            // cambiar propiedad
+            if (whatsappData.status !== 200) {
+              contacts.push({
+                email: alumni.email,
+                hubspotResponse: null,
+                whatsappResponse: whatsappData.data.message
+              })
+            }
+
+            const { data: updateResponse } = await updateDeal(alumni.deal_id, hubspotProp)
+            if (updateResponse.properties.dealname === hubspotProp.value && whatsappData.status === 200) {
+              contacts.push({
+                email: alumni.email,
+                whatsappResponse: whatsappData.data.message,
+                hubspotResponse: 'Hubspot property updated'
+              })
+            } else {
+              contacts.push({
+                email: alumni.email,
+                whatsappResponse: whatsappData.data.message,
+                hubspotResponse: 'Hubspot property not updated'
+              })
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        }
+
+        const nextArray = arrayProp.slice(counter + 10, Infinity)
+        return tenRescursiveFunction(nextArray)
+      }
+
+      return await tenRescursiveFunction(alumniInput)
     } catch (error) {
       console.log(error)
       return error
