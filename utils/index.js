@@ -3,8 +3,6 @@ import axios from 'axios'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-console.log('🚀 ~ file: index.js ~ line 3 ~ process.env', process.env.BASIC_TOKEN)
-
 const hubApi = axios.create({
   params: {
     hapikey: process.env.HUBSPOT_API_KEY
