@@ -1,6 +1,7 @@
 
 import axios from 'axios'
 import * as dotenv from 'dotenv'
+import { dealProperties } from '../utils/CONST.js'
 dotenv.config()
 
 const hubApi = axios.create({
@@ -78,11 +79,6 @@ export async function sendWhatsappMessage (message) {
   }
 
   const { data } = await axios(config)
-  console.log('🚀 ~ file: index.js ~ line 85 ~ sendWhatsappMessage ~ data', data)
-  if (data.status !== 200) {
-    throw new Error('Error al enviar el mensaje', data.error)
-  }
-
   return data
 }
 
@@ -102,4 +98,19 @@ export async function updateDeal (dealID, hubspotProp) {
 
   })
   return deal
+}
+
+export async function batchDeal (associations) {
+  const raw = JSON.stringify({
+    inputs: associations,
+    properties: dealProperties
+  })
+
+  const deals = await hubApi.post('/crm/v3/objects/deals/batch/read', raw, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+
+  return deals
 }

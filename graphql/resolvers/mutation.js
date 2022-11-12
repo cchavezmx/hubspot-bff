@@ -80,21 +80,19 @@ export const Mutation = {
             }
 
             const { data: updateResponse } = await updateDeal(alumni.deal_id, hubspotProp)
-            if (updateResponse.properties.dealname === hubspotProp.value && whatsappData.status === 200) {
+            if (whatsappData.status === 200 && updateResponse.id === alumni.deal_id) {
               contacts.push({
                 email: alumni.email,
                 whatsappResponse: whatsappData.data.message,
                 hubspotResponse: 'Hubspot property updated'
               })
-            } else {
-              contacts.push({
-                email: alumni.email,
-                whatsappResponse: whatsappData.data.message,
-                hubspotResponse: 'Hubspot property not updated'
-              })
             }
           } catch (error) {
-            console.log(error)
+            contacts.push({
+              email: alumni.email,
+              whatsappResponse: 'message not sent',
+              hubspotResponse: 'Hubspot property not updated'
+            })
           }
         }
 
@@ -104,7 +102,7 @@ export const Mutation = {
 
       return await tenRescursiveFunction(alumniInput)
     } catch (error) {
-      console.log(error)
+      console.log(error.message)
       return error
     }
   }

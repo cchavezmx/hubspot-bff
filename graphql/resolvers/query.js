@@ -1,6 +1,6 @@
-import { getContactBasicFilter, getDealBasicFilter, getContactDeal } from '../../utils/index.js'
+import { getContactBasicFilter, getContactDeal, batchDeal } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
-import { contactProperties, dealProperties } from '../../utils/CONST.js'
+import { contactProperties } from '../../utils/CONST.js'
 
 const filterPayload = (propertyName, value) => [{ filters: [{ propertyName, operator: 'EQ', value }] }]
 
@@ -55,7 +55,7 @@ export const Query = {
 
             if (!dataContact.results.length) {
               contacts.push({
-                contactProperties: { error: 'No existe el contacto' },
+                contactProperties: { error: 'No existe el contacto', email },
                 dealProperties: [{ error: 'No existe el contacto' }]
               })
             }
@@ -63,13 +63,10 @@ export const Query = {
             const associatedDeals = await getContactDeal(contact.id)
 
             if (associatedDeals.length > 0) {
-              const alldeals = await Promise.all(associatedDeals.map(async deal => {
-                const deals = await getDealBasicFilter(filterPayload('hs_object_id', deal.id), dealProperties)
-                return deals
-              }))
+              const { data: alldeals } = await batchDeal(associatedDeals)
               contacts.push({
                 contactProperties: contact.properties,
-                dealProperties: alldeals.flat(Infinity).map(deal => deal.properties)
+                dealProperties: alldeals.results.flat(Infinity).map(deal => deal.properties)
               })
             } else {
               contacts.push({
@@ -78,7 +75,7 @@ export const Query = {
               })
             }
           } catch (error) {
-            console.log('🚀 ~ file: query.js ~ line 77 ~ forawait ~ error', error)
+            console.log('🚀 ~ file: query.js ~ line 77 ~ forawait ~ error', error.message, email)
           }
         }
 

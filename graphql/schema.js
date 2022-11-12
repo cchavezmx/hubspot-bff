@@ -35,6 +35,12 @@ export const typeDefs = `#graphql
 
   enum programs {
     code
+    data
+    ux
+    ai
+    ui
+    data_ai
+    ux_ui
   }
 
   enum contactPropertiesEnum {
@@ -48,6 +54,7 @@ export const typeDefs = `#graphql
     closedate
     programa_de_interes
     link_pago_parcialidades
+    envio_link_pago_whatsapp
   }
 
   input filterInput {
