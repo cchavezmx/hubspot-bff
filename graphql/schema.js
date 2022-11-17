@@ -43,6 +43,11 @@ export const typeDefs = `#graphql
     ux_ui
   }
 
+  enum status {
+    pending    
+    error
+  }
+
   enum contactPropertiesEnum {
     next_info_session_register
     envio_link_ensayo
@@ -118,6 +123,7 @@ export const typeDefs = `#graphql
 
   type updateResponse {
     email: String
+    status: status
     updateResponse: contactProperties
   }
 

@@ -16,7 +16,7 @@ export const Mutation = {
       const tenRescursiveFunction = async (arrayProp = []) => {
         await setTimeout(500)
         if (arrayProp.length === 0) {
-          return contacts
+          return contacts.filter(item => item !== undefined)
         }
 
         const counter = 0
@@ -29,14 +29,22 @@ export const Mutation = {
             .then(async ({ data }) => {
               const results = data.results.map(contact => contact)
               if (results.length === 0) {
-                contacts.push({ email: `No existe el contacto con el email ${email}` })
+                contacts.push({
+                  email,
+                  status: 'error',
+                  updateResponse: null
+                })
                 return
               }
               const [contact] = results
               const { data: updateResponse } = await updateContact(contact.id, hubspotProp)
+              const { properties } = updateResponse
+              const { property } = hubspotProp
+              const status = properties[property] === hubspotProp.value ? 'pending' : 'error'
               return {
                 email,
-                updateResponse
+                status,
+                updateResponse: updateResponse.properties
               }
             })
 
