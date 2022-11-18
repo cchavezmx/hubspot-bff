@@ -2,7 +2,8 @@
 import axios from 'axios'
 import * as dotenv from 'dotenv'
 import { dealProperties } from '../utils/CONST.js'
-import { Redis } from '@upstash/redis'
+import { createClient } from 'redis'
+
 dotenv.config()
 
 const hubApi = axios.create({
@@ -12,9 +13,8 @@ const hubApi = axios.create({
   baseURL: 'https://api.hubapi.com'
 })
 
-const redis = new Redis({
-  url: 'https://us1-content-guppy-38836.upstash.io',
-  token: process.env.UPSTASH_TOKEN
+const client = createClient({
+  url: `${process.env.REDIS_URL}`
 })
 
 export const getContactBasicFilter = async (filterGroups, properties) => {
@@ -122,6 +122,15 @@ export async function batchDeal (associations) {
 }
 
 export async function getDataFromUpstash (email) {
-  const data = await redis.get(email)
-  return { email, status: data }
+  client.on('error', (err) => console.log('Redis Client Error', err))
+
+  try {
+    await client.connect()
+    const data = await client.get(email)
+    await client.disconnect()
+    return { email, status: data }
+  } catch (error) {
+    console.log(error)
+    return null
+  }
 }
