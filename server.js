@@ -1,9 +1,6 @@
 import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import * as dotenv from 'dotenv'
-
-import Keyv from 'keyv'
-import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 import { typeDefs } from './graphql/schema.js'
 import { resolvers } from './graphql/resolvers/index.js'
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core'
@@ -27,7 +24,6 @@ async function startApolloServer () {
     //     token: req.headers.authorization
     //   }
     // },
-    cache: new KeyvAdapter(new Keyv(process.env.REDIS_URL)),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     introspection: true,
     playground: true

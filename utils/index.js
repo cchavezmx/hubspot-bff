@@ -13,10 +13,6 @@ const hubApi = axios.create({
   baseURL: 'https://api.hubapi.com'
 })
 
-const client = createClient({
-  url: `${process.env.REDIS_URL}`
-})
-
 export const getContactBasicFilter = async (filterGroups, properties) => {
   const raw = JSON.stringify({
     filterGroups,
@@ -122,13 +118,25 @@ export async function batchDeal (associations) {
 }
 
 export async function getDataFromUpstash (email) {
-  client.on('error', (err) => console.log('Redis Client Error', err))
-
+  const client = createClient({
+    url: `${process.env.REDIS_URL}`
+  })
+  client.on('error', (err) => {
+    console.log('Error ' + err)
+  })
   try {
-    await client.connect()
-    const data = await client.get(email)
-    await client.disconnect()
-    return { email, status: data }
+    const data = async () => {
+      await client.connect().catch((err) => console.log('Redis Client Error', err))
+      const data = await client.get(email)
+      await client.disconnect()
+      if (data) {
+        return { email, status: data }
+      } else {
+        return { email, status: 'not_found' }
+      }
+    }
+
+    return Promise.resolve(data())
   } catch (error) {
     console.log(error)
     return null
