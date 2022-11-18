@@ -141,6 +141,12 @@ export const typeDefs = `#graphql
     payment_link: String
     deal_id: String      
   }
+
+  
+  type contactConfirmed {
+    email: String
+    status: String
+  }
     
   type Mutation {
     changePropertiesFromContacts(emails: [String], hubspotProp: hubspotContactProp): [updateResponse]
@@ -151,6 +157,7 @@ export const typeDefs = `#graphql
     getContactProperties(filterInput: propertiesInput!): [contact]
     getContactPropertiesFromArray(emails: [String]): [contact]
     getDealsPropertiesFromArray(emails: [String]): [contactAndDeal]
+    getAllConfirmedFromArray(emails: [String]): [contactConfirmed]
 
   }
 

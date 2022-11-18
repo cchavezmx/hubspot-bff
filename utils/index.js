@@ -2,6 +2,7 @@
 import axios from 'axios'
 import * as dotenv from 'dotenv'
 import { dealProperties } from '../utils/CONST.js'
+import { Redis } from '@upstash/redis'
 dotenv.config()
 
 const hubApi = axios.create({
@@ -9,6 +10,11 @@ const hubApi = axios.create({
     hapikey: process.env.HUBSPOT_API_KEY
   },
   baseURL: 'https://api.hubapi.com'
+})
+
+const redis = new Redis({
+  url: 'https://us1-content-guppy-38836.upstash.io',
+  token: process.env.UPSTASH_TOKEN
 })
 
 export const getContactBasicFilter = async (filterGroups, properties) => {
@@ -113,4 +119,9 @@ export async function batchDeal (associations) {
   })
 
   return deals
+}
+
+export async function getDataFromUpstash (email) {
+  const data = await redis.get(email)
+  return { email, status: data }
 }

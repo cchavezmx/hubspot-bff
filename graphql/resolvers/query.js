@@ -1,4 +1,4 @@
-import { getContactBasicFilter, getContactDeal, batchDeal } from '../../utils/index.js'
+import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
 import { contactProperties } from '../../utils/CONST.js'
 
@@ -84,6 +84,14 @@ export const Query = {
       }
 
       return await tenRescursiveFunction(emails)
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  },
+  getAllConfirmedFromArray: async (__parent, { emails }, context, info) => {
+    try {
+      return Promise.all(emails.map(email => getDataFromUpstash(email)))
     } catch (error) {
       console.log(error)
       return error
