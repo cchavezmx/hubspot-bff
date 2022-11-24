@@ -89,9 +89,9 @@ export const Query = {
       return error
     }
   },
-  getAllConfirmedFromArray: async (__parent, { emails }, context, info) => {
+  getAllConfirmedFromArray: async (__parent, { emails, type }, context, info) => {
     try {
-      return Promise.all(emails.map(email => getDataFromUpstash(email)))
+      return Promise.all(emails.map(email => getDataFromUpstash(email, type)))
     } catch (error) {
       console.log(error)
       return error

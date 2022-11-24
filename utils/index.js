@@ -117,7 +117,7 @@ export async function batchDeal (associations) {
   return deals
 }
 
-export async function getDataFromUpstash (email) {
+export async function getDataFromUpstash (email, typeMessage) {
   const client = createClient({
     url: `${process.env.REDIS_URL}`
   })
@@ -127,7 +127,7 @@ export async function getDataFromUpstash (email) {
   try {
     const data = async () => {
       await client.connect().catch((err) => console.log('Redis Client Error', err))
-      const data = await client.get(email)
+      const data = await client.get(`${typeMessage}:${email}`)
       await client.disconnect()
       if (data) {
         return { email, status: data }

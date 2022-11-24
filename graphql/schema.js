@@ -157,7 +157,7 @@ export const typeDefs = `#graphql
     getContactProperties(filterInput: propertiesInput!): [contact]
     getContactPropertiesFromArray(emails: [String]): [contact]
     getDealsPropertiesFromArray(emails: [String]): [contactAndDeal]
-    getAllConfirmedFromArray(emails: [String]): [contactConfirmed]
+    getAllConfirmedFromArray(emails: [String], type: contactPropertiesEnum ): [contactConfirmed]
 
   }
 
