@@ -48,6 +48,10 @@ export const typeDefs = `#graphql
     error
   }
 
+  enum scopeEnum {
+    tickets
+  }
+
   enum contactPropertiesEnum {
     next_info_session_register
     envio_link_ensayo
@@ -91,7 +95,7 @@ export const typeDefs = `#graphql
   }
 
   type contact {
-    id: String
+    id: Int
     firstname: String
     lastname: String
     email: String
@@ -101,6 +105,11 @@ export const typeDefs = `#graphql
     city: String
     state: String
     error: String
+  }
+
+  type ticket {
+    subject: String,
+    content: String,
   }
 
   type deal {
@@ -114,6 +123,10 @@ export const typeDefs = `#graphql
     contactProperties: contact
     dealProperties: [deal]
     error: String
+  }
+
+  type associatedToDeal {
+    tickets: [ticket]
   }
 
   type contactProperties {
@@ -142,6 +155,24 @@ export const typeDefs = `#graphql
     deal_id: String      
   }
 
+  type DealAndContact {
+    createdate: String
+    dealname: String
+    hs_lastmodifieddate: String
+    hs_object_id: String
+    link_pago_parcialidades: String
+    programa_de_interes: String
+    address: String
+    city: String
+    email: String
+    firstname: String
+    lastmodifieddate: String
+    lastname: String
+    mobilephone: String
+    phone: String
+    state: String    
+  }
+
   
   type contactConfirmed {
     email: String
@@ -158,6 +189,8 @@ export const typeDefs = `#graphql
     getContactPropertiesFromArray(emails: [String]): [contact]
     getDealsPropertiesFromArray(emails: [String]): [contactAndDeal]
     getAllConfirmedFromArray(emails: [String], type: contactPropertiesEnum ): [contactConfirmed]
+    getDealAssociated(dealId: String, scope: scopeEnum): [associatedToDeal]
+    getContactsAndDealFromStage(dealstage: String): [DealAndContact]
 
   }
 

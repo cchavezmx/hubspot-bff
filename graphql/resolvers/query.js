@@ -1,6 +1,6 @@
-import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash } from '../../utils/index.js'
+import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash, getDealAssociation, getTicket, getDealBasicFilter, getContactFromDealId } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
-import { contactProperties } from '../../utils/CONST.js'
+import { contactProperties, dealProperties } from '../../utils/CONST.js'
 
 const filterPayload = (propertyName, value) => [{ filters: [{ propertyName, operator: 'EQ', value }] }]
 
@@ -65,7 +65,7 @@ export const Query = {
             if (associatedDeals.length > 0) {
               const { data: alldeals } = await batchDeal(associatedDeals)
               contacts.push({
-                contactProperties: contact.properties,
+                contactProperties: { ...contact.properties, id: contact.id },
                 dealProperties: alldeals.results.flat(Infinity).map(deal => deal.properties)
               })
             } else {
@@ -96,5 +96,68 @@ export const Query = {
       console.log(error)
       return error
     }
+  },
+  getDealAssociated: async (__parent, { dealId, scope }, context, info) => {
+    try {
+      const results = await getDealAssociation(dealId, scope)
+      const tickets = await Promise.all(results.map(({ id }) => getTicket(id)))
+
+      return [{ [scope]: tickets }]
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  },
+  getContactsAndDealFromStage: async (__parent, { dealstage }, context, info) => {
+    const results = []
+    const data = {
+      filterGroups: [
+        {
+          filters: [
+            {
+              operator: 'EQ',
+              propertyName: 'dealstage',
+              value: dealstage
+            }
+          ]
+        }
+      ],
+      limit: 100,
+      properties: dealProperties
+    }
+
+    try {
+      const contactAndDeal = await getDealBasicFilter(data.filterGroups, dealProperties, 100)
+      for await (const deal of contactAndDeal) {
+        await setTimeout(500)
+        await getContactFromDealId(deal)
+          .then(data => {
+            if (!data.hs_object_id) {
+              results.push({ error: `No existe el contacto con el email ${deal.id}` })
+            }
+            // save on redis cache
+            info.cacheControl.setCacheHint({ maxAge: 240 })
+            results.push(data)
+          })
+      }
+      return results
+    } catch (error) {
+      console.log(error.data.error)
+      return error
+    }
   }
 }
+
+// {
+//   "eventId": "100",
+//   "subscriptionId": 1863268,
+//   "portalId": 7918300,
+//   "occurredAt": 1669976445924,
+//   "subscriptionType": "deal.propertyChange",
+//   "attemptNumber": 0,
+//   "objectId": 123,
+//   "changeSource": "CRM",
+//   "propertyName": "dealstage",
+//   "propertyValue": "sample-value",
+//   "appId": 1269948
+// }
