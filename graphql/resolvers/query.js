@@ -1,4 +1,4 @@
-import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash, getDealAssociation, getTicket, getDealBasicFilter, getContactFromDealId } from '../../utils/index.js'
+import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash, getDealAssociation, getTicket, getDealBasicFilter, getContactFromDealId, getContact } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
 import { contactProperties, dealProperties } from '../../utils/CONST.js'
 
@@ -100,9 +100,14 @@ export const Query = {
   getDealAssociated: async (__parent, { dealId, scope }, context, info) => {
     try {
       const results = await getDealAssociation(dealId, scope)
-      const tickets = await Promise.all(results.map(({ id }) => getTicket(id)))
 
-      return [{ [scope]: tickets }]
+      let response = []
+      if (scope === 'tickets') {
+        response = await Promise.all(results.map(({ id }) => getTicket(id)))
+      } else if (scope === 'contacts') {
+        response = await Promise.all(results.map(({ id }) => getContact(id)))
+      }
+      return [{ [scope]: response.flat(Infinity) }]
     } catch (error) {
       console.log(error)
       return error

@@ -50,6 +50,7 @@ export const typeDefs = `#graphql
 
   enum scopeEnum {
     tickets
+    contacts
   }
 
   enum contactPropertiesEnum {
@@ -127,6 +128,7 @@ export const typeDefs = `#graphql
 
   type associatedToDeal {
     tickets: [ticket]
+    contacts: [contact]
   }
 
   type contactProperties {

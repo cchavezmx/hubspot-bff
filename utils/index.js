@@ -244,3 +244,28 @@ export async function getContactFromDealId (deal) {
     console.log(JSON.stringify(error))
   }
 }
+
+export async function getContact (id) {
+  const filterBody = {
+    filterGroups: [
+      {
+        filters: [
+          {
+            operator: 'EQ',
+            propertyName: 'hs_object_id',
+            value: id
+          }
+        ]
+      }
+    ],
+    properties: contactProperties
+  }
+  const raw = JSON.stringify({ ...filterBody })
+
+  const { data } = await hubApi.post('/crm/v3/objects/contacts/search', raw, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  return data.results.map((contact) => contact.properties)
+}
