@@ -106,6 +106,8 @@ export const Query = {
         response = await Promise.all(results.map(({ id }) => getTicket(id)))
       } else if (scope === 'contacts') {
         response = await Promise.all(results.map(({ id }) => getContact(id)))
+      } else {
+        throw new Error('Debes enviar un scope valido')
       }
       return [{ [scope]: response.flat(Infinity) }]
     } catch (error) {
