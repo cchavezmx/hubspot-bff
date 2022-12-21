@@ -117,10 +117,9 @@ export const Query = {
     }
   },
   getContactsAndDealFromStage: async (__parent, { dealstage, dateFilter }, context, info) => {
-    console.log('🚀 ~ file: query.js:120 ~ getContactsAndDealFromStage: ~ dateFilter', dateFilter)
     const filters = () => {
-      if (dateFilter.propertyName) {
-        const valueDate = new Date(dateFilter.date).getTime()
+      if (dateFilter?.propertyName) {
+        const valueDate = new Date(dateFilter?.date).getTime()
         return [
           {
             operator: 'EQ',
@@ -128,7 +127,7 @@ export const Query = {
             value: dealstage
           },
           {
-            propertyName: dateFilter.propertyName,
+            propertyName: dateFilter?.propertyName,
             operator: 'BETWEEN',
             highValue: valueDate + 86400000,
             value: valueDate
@@ -143,8 +142,6 @@ export const Query = {
         }
       ]
     }
-
-    console.log(filters(), 'filters')
 
     const results = []
     const data = {
