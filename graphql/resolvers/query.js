@@ -1,6 +1,7 @@
 import { getContactBasicFilter, getContactDeal, batchDeal, getDataFromUpstash, getDealAssociation, getTicket, getDealBasicFilter, getContactFromDealId, getContact } from '../../utils/index.js'
 import { setTimeout } from 'timers/promises'
 import { contactProperties, dealProperties } from '../../utils/CONST.js'
+import { ApolloError } from 'apollo-server-core'
 
 const filterPayload = (propertyName, value) => [{ filters: [{ propertyName, operator: 'EQ', value }] }]
 
@@ -115,18 +116,41 @@ export const Query = {
       return error
     }
   },
-  getContactsAndDealFromStage: async (__parent, { dealstage }, context, info) => {
+  getContactsAndDealFromStage: async (__parent, { dealstage, dateFilter }, context, info) => {
+    console.log('🚀 ~ file: query.js:120 ~ getContactsAndDealFromStage: ~ dateFilter', dateFilter)
+    const filters = () => {
+      if (dateFilter.propertyName) {
+        const valueDate = new Date(dateFilter.date).getTime()
+        return [
+          {
+            operator: 'EQ',
+            propertyName: 'dealstage',
+            value: dealstage
+          },
+          {
+            propertyName: dateFilter.propertyName,
+            operator: 'BETWEEN',
+            highValue: valueDate + 86400000,
+            value: valueDate
+          }
+        ]
+      }
+      return [
+        {
+          operator: 'EQ',
+          propertyName: 'dealstage',
+          value: dealstage
+        }
+      ]
+    }
+
+    console.log(filters(), 'filters')
+
     const results = []
     const data = {
       filterGroups: [
         {
-          filters: [
-            {
-              operator: 'EQ',
-              propertyName: 'dealstage',
-              value: dealstage
-            }
-          ]
+          filters: [...filters()]
         }
       ],
       limit: 100,
@@ -139,18 +163,16 @@ export const Query = {
         await setTimeout(500)
         await getContactFromDealId(deal)
           .then(data => {
-            if (!data.hs_object_id) {
-              results.push({ error: `No existe el contacto con el email ${deal.id}` })
+            if (typeof data?.hs_object_id !== 'undefined') {
+              results.push(data)
+            } else {
+              results.push({ error: 'Sin datos de contacto', ...deal.properties })
             }
-            // save on redis cache
-            info.cacheControl.setCacheHint({ maxAge: 240 })
-            results.push(data)
           })
       }
       return results
     } catch (error) {
-      console.log(error.data.error)
-      return error
+      return new ApolloError(error)
     }
   }
 }

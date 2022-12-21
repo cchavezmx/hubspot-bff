@@ -163,6 +163,7 @@ export const typeDefs = `#graphql
     hs_lastmodifieddate: String
     hs_object_id: String
     link_pago_parcialidades: String
+    link_de_inscripcion: String
     programa_de_interes: String
     address: String
     city: String
@@ -172,13 +173,24 @@ export const typeDefs = `#graphql
     lastname: String
     mobilephone: String
     phone: String
-    state: String    
+    state: String
+    error: String
   }
 
   
   type contactConfirmed {
     email: String
     status: String
+  }
+
+  enum dateEnum {
+    createdate
+    hs_lastmodifieddate
+  }
+
+  input DateFilterInput {
+    propertyName: dateEnum,
+    date: String
   }
     
   type Mutation {
@@ -192,8 +204,7 @@ export const typeDefs = `#graphql
     getDealsPropertiesFromArray(emails: [String]): [contactAndDeal]
     getAllConfirmedFromArray(emails: [String], type: contactPropertiesEnum ): [contactConfirmed]
     getDealAssociated(dealId: String, scope: scopeEnum): [associatedToDeal]
-    getContactsAndDealFromStage(dealstage: String): [DealAndContact]
-
+    getContactsAndDealFromStage(dealstage: String, dateFilter: DateFilterInput): [DealAndContact]
   }
 
 `

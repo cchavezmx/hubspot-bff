@@ -179,17 +179,11 @@ export async function getTicket (id) {
 
 export async function getContactFromDealId (deal) {
   try {
-    const calls = {
-      'Master en Coding': { zoomId: '2yGSPSUeT0SIzTloUmdBIg', slug: 'code' },
-      'Master en UI': { zoomId: 'iaoTZgq8TdidAhu1jg1_OA', slug: 'ui' },
-      'Master en UX': { zoomId: 'iaoTZgq8TdidAhu1jg1_OA', slug: 'ux' },
-      'Master en UX / UI': { zoomId: 'iaoTZgq8TdidAhu1jg1_OA', slug: 'ux_ui' },
-      'Master en Data Science': { zoomId: 'jCBxgiFhRUyOv7Awg1EqUQ', slug: 'data' },
-      'Master en AI': { zoomId: 'jCBxgiFhRUyOv7Awg1EqUQ', slug: 'ai' },
-      'Master en Data Science / AI': { zoomId: 'jCBxgiFhRUyOv7Awg1EqUQ', slug: 'data_ai' }
-    }
-
     const { data: asosiateID } = await hubApi.get(`/crm/v3/objects/deals/${deal.id}/associations/CONTACT`)
+
+    if (asosiateID.results.length === 0) {
+      return null
+    }
 
     const raw = JSON.stringify({
       filterGroups: [{
@@ -213,35 +207,10 @@ export async function getContactFromDealId (deal) {
       ...contact.results[0].properties
     }
 
-    console.log('🚀 ~ file: index.js:213 ~ getContactFromDealId ~ payload', payload)
-
-    if (payload.link_pago_parcialidades !== null) {
-      const config = {
-        method: 'post',
-        url: 'https://bot-whats-d6rxv5j22a-uc.a.run.app/reminder/send/payment/link',
-        headers: {
-          Authorization: process.env.DANIEL_BASIC_TOKEN,
-          'Content-Type': 'application/json'
-        },
-
-        data: JSON.stringify({
-          name: `${payload.firstname} ${payload.lastname}`,
-          phone: payload.phone.replace('+', '') || payload.mobilephone.replace('+', ''),
-          program: calls[payload.programa_de_interes].slug,
-          payment_link: payload.link_pago_parcialidades
-        })
-
-      }
-
-      const { data } = await axios(config)
-      console.log('🚀 ~ file: index.js:235 ~ getContactFromDealId ~ data', data)
-      console.log({ ...payload })
-      return { ...payload, axiosres: JSON.stringify(data) }
-    }
-    console.log({ ...payload, axiosres: 'no link' })
-    return { ...payload, axiosres: 'no link' }
+    return { ...payload }
   } catch (error) {
-    console.log(JSON.stringify(error))
+    console.log(error)
+    return null
   }
 }
 
